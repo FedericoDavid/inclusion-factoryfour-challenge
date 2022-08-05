@@ -1,54 +1,35 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 
 import HeaderBar from "./components/HeaderBar";
 
-import { queryExceptions, statusKeys } from "./utils/statusData";
+import { statusKeys } from "./utils/statusKeys";
+import { useFactoryFourAPIClient } from "./services/api/useFactoryFourAPIClient";
 
 export const App: React.FC = () => {
     const [healthStatus, setHealthStatus] = useState({});
 
-    const baseUrl = (queryString: string) =>
-        `https://api.factoryfour.com/${queryString}/health/status`;
-
-    const handleCorsUrl = (queryString: string) =>
-        `https://cors-anywhere.herokuapp.com/${baseUrl(queryString)}`;
-
-    const handleBaseUrl = (queryString: string) => {
-        const { users, invites, messages } = queryExceptions;
-        if (
-            //this three always return "rejected by cors policy", using "cors-anywhere" to solve it
-            queryString === users ||
-            queryString === messages ||
-            queryString === invites
-        ) {
-            return handleCorsUrl(queryString);
-        } else {
-            return baseUrl(queryString);
-        }
-    };
+    const factoryFourAPIClient = useFactoryFourAPIClient();
 
     const getHealthStatusData = () => {
-        statusKeys.map((queryKey) =>
-            axios
-                .get(handleBaseUrl(queryKey))
-                .then((res) =>
-                    setHealthStatus((prev: any) => ({
-                        ...prev,
-                        [queryKey]: res.data,
-                    }))
-                )
-                .catch((err) =>
-                    setHealthStatus((prev: any) => ({
-                        ...prev,
-                        [queryKey]: {
-                            success: false,
-                            message: "error",
-                            error: err.response,
-                        },
-                    }))
-                )
-        );
+        statusKeys.map(async (key) => {
+            try {
+                const res = await factoryFourAPIClient.getHealthStatus(key);
+
+                setHealthStatus((prev: any) => ({
+                    ...prev,
+                    [key]: res,
+                }));
+            } catch (err) {
+                setHealthStatus((prev: any) => ({
+                    ...prev,
+                    [key]: {
+                        success: false,
+                        message: "error",
+                        error: (err as Error).message,
+                    },
+                }));
+            }
+        });
     };
 
     useEffect(() => {
@@ -63,14 +44,14 @@ export const App: React.FC = () => {
 
     console.log(healthStatus);
 
-    if (!healthStatus) return <p>no</p>;
+    if (!healthStatus) return <p>Loading...</p>;
 
     return (
         <div className="App">
             <HeaderBar />
             <div>
-                {Object.keys(healthStatus).map((key: any, idx: number) => (
-                    <p key={idx}>{key}</p>
+                {Object.keys(healthStatus).map((key: string, i: number) => (
+                    <p key={i}>{key}</p>
                     // <p>{healthStatus[key]}</p>
                 ))}
             </div>
