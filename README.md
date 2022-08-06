@@ -1,7 +1,7 @@
 # Inclusion The Cloud Company Technical Challenge 🚀
 ## FactoryFour Frontend Dev Take-Home Challenge
 
-### Front end Challenge made with React ⚛, Vite ⚡ & Chakra Ui.
+### Proyect made with Vite ⚡, React ⚛, Typescript & Chakra Ui.
 
 ### Live version: 
 https://inclusion-factoryfour-challenge.vercel.app/ 🌎
