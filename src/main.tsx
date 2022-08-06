@@ -4,10 +4,12 @@ import { ChakraProvider } from "@chakra-ui/react";
 
 import App from "./App";
 
+import { theme } from "./styles/theme";
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-   <React.StrictMode>
-      <ChakraProvider resetCSS>
-         <App />
-      </ChakraProvider>
-   </React.StrictMode>
+    <React.StrictMode>
+        <ChakraProvider resetCSS theme={theme}>
+            <App />
+        </ChakraProvider>
+    </React.StrictMode>
 );

@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import HeaderBar from "./components/HeaderBar";
+import Dashboard from "./components/Dashboard";
+import Footer from "./components/Footer";
 
 import { statusKeys } from "./utils/statusKeys";
 import { useFactoryFourAPIClient } from "./services/api/useFactoryFourAPIClient";
@@ -10,7 +12,7 @@ export const App: React.FC = () => {
 
     const factoryFourAPIClient = useFactoryFourAPIClient();
 
-    const getHealthStatusData = () => {
+    const getHealthStatusData = useCallback(async () => {
         statusKeys.map(async (key) => {
             try {
                 const res = await factoryFourAPIClient.getHealthStatus(key);
@@ -30,7 +32,7 @@ export const App: React.FC = () => {
                 }));
             }
         });
-    };
+    }, []);
 
     useEffect(() => {
         getHealthStatusData();
@@ -40,21 +42,13 @@ export const App: React.FC = () => {
         }, 15000);
 
         return () => clearInterval(interval);
-    }, []);
-
-    console.log(healthStatus);
-
-    if (!healthStatus) return <p>Loading...</p>;
+    }, [getHealthStatusData]);
 
     return (
         <div className="App">
             <HeaderBar />
-            <div>
-                {Object.keys(healthStatus).map((key: string, i: number) => (
-                    <p key={i}>{key}</p>
-                    // <p>{healthStatus[key]}</p>
-                ))}
-            </div>
+            <Dashboard healthStatus={healthStatus} />
+            <Footer />
         </div>
     );
 };
